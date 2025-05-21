@@ -1,8 +1,9 @@
-data/raw/**
-data/processed/**
-data/interim/**
-frontend/**
-
+# data/raw/*
+data/processed/*
+data/raw/*
+data/interim/*
+frontend/*
+!.gitkeep
 
 .vscode/*
 !.vscode/extensions.json
