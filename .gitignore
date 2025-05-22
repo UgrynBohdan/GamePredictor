@@ -1,8 +1,6 @@
-# data/raw/*
 data/processed/*
 data/raw/*
 data/interim/*
-frontend/*
 !.gitkeep
 
 .vscode/*
