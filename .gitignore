@@ -1,7 +1,13 @@
 data/processed/*
 data/raw/*
 data/interim/*
+model/res/*
+model/data_preparation/trans/*
 !.gitkeep
+
+model/data_preparation/test_res.csv
+model/data_preparation/test.csv
+structure.excalidraw
 
 .vscode/*
 !.vscode/extensions.json

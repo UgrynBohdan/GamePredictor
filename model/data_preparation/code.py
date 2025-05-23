@@ -1,16 +1,41 @@
-# 1
-df.dropna(inplace=True)
+# Тестую кодування даних, для подальшого перетворення даних користувача
 
-# 2
+import pandas as pd
+import pickle
+import os
+import sys
+
+# filepath: d:\AI Sports Predictor\model\data_preparation\code.py
+
+# Змінити робочу директорію на директорію, де лежить цей файл
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+df = pd.read_csv('./test.csv')
+
+# 0
+df = df.drop(['confederation', 'competition_type'], axis=1)
+
+# 1
+# Label Encoding (для ordinal/порядкових ознак):
 col_for_LE = [
     'competition_id', 'round', 'home_club_manager_name','away_club_manager_name', 'stadium', 'referee',
     'domestic_competition_id_home_club', 'stadium_name_home_club','domestic_competition_id_away_club',
     'stadium_name_away_club'
 ]
-for col in col_for_LE:
-    df[col] = df[col].astype('category').cat.codes
 
-# 3
+# Завантажити mapping
+with open('./trans/label_encoders.pkl', 'rb') as f:
+    label_encoders = pickle.load(f)
+
+# Для кодування нових даних:
+for col in col_for_LE:
+    mapping = {v: k for k, v in label_encoders[col].items()}
+    df[col] = df[col].map(mapping).fillna(-1).astype(int)  # -1 для невідомих категорій
+
+
+
+
+# 2
 # Обробка дати
 df['date'] = pd.to_datetime(df['date'])
 df['year'] = df['date'].dt.year
@@ -18,24 +43,16 @@ df['month'] = df['date'].dt.month
 df['day'] = df['date'].dt.day
 df['dayofweek'] = df['date'].dt.dayofweek  # 0 - понеділок, 6 - неділя
 
+# 3
+# Завантажити mapping
+with open('./trans/formation_encoder.pkl', 'rb') as f:
+    value_to_code = pickle.load(f)
+
+# Кодувати нові дані
+df['home_club_formation_code'] = df['home_club_formation'].astype(str).map(value_to_code).fillna(-1).astype(int)
+df['away_club_formation_code'] = df['away_club_formation'].astype(str).map(value_to_code).fillna(-1).astype(int)
 
 # 4
-# 4.1. Зібрати всі унікальні значення з обох колонок
-unique_values = pd.unique(
-    pd.concat([
-        df['home_club_formation'].astype(str),
-        df['away_club_formation'].astype(str)
-    ])
-)
-
-# 4.2. Створити mapping
-value_to_code = {val: i for i, val in enumerate(unique_values)}
-
-# 4.3. Замапити коди на обидві колонки
-df['home_club_formation_code'] = df['home_club_formation'].astype(str).map(value_to_code)
-df['away_club_formation_code'] = df['away_club_formation'].astype(str).map(value_to_code)
-
-# 5.
 def parse_transfer_value(value):
     if pd.isnull(value):
         return None
@@ -54,7 +71,13 @@ def parse_transfer_value(value):
 df['net_transfer_record_home_club_num'] = df['net_transfer_record_home_club'].apply(parse_transfer_value)
 df['net_transfer_record_away_club_num'] = df['net_transfer_record_away_club'].apply(parse_transfer_value)
 
-# 6
+
+# 5
+import joblib
+
+# Завантажити scaler
+scaler = joblib.load('./trans/minmax_scaler.pkl')
+
 corr_col = [
     'competition_id', 'season', 'round', 'home_club_id',
     'away_club_id',
@@ -74,8 +97,7 @@ corr_col = [
     'net_transfer_record_home_club_num',
     'net_transfer_record_away_club_num'
 ]
+# Застосувати до нових даних
+df[corr_col] = scaler.transform(df[corr_col])
 
-
-scaler = MinMaxScaler()
-df_scaled = df.copy()
-df_scaled[corr_col] = scaler.fit_transform(df[corr_col])
+df.to_csv('./test_res.csv', index=False)

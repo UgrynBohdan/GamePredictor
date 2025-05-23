@@ -8,7 +8,6 @@ function MatchForm() {
     homeTeam: '',
     awayTeam: '',
     location: '',
-    // score: '',
   });
 
   const handleChange = (e) => {
