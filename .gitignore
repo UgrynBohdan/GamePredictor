@@ -1,6 +1,7 @@
 *.csv
 *.zip
 *.pkl
+# *.json
 !.gitkeep
 
 structure.excalidraw

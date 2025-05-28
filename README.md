@@ -18,3 +18,8 @@ https://www.kaggle.com/datasets/davidcariboo/player-scores/data
 5. Переходи між сторінками
 6. Підключати стилі до всього
 7. Організовувати компоненти, файли з кодом і інше
+
+Можна подивитися дані про майбутні матчі для моделі
+https://ua.tribuna.com/uk/football/match/
+тож нічого
+https://www.flashscore.ua/

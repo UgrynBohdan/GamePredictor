@@ -14,7 +14,7 @@ def encode(df):
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     # 0
-    df = df.drop(['confederation', 'competition_type'], axis=1)
+    # df = df.drop(['confederation', 'competition_type'], axis=1)
 
     # 1
     # Label Encoding (для ordinal/порядкових ознак):
@@ -25,7 +25,7 @@ def encode(df):
     ]
 
     # Завантажити mapping
-    with open('./trans/label_encoders.pkl', 'rb') as f:
+    with open('./transformers/label_encoders.pkl', 'rb') as f:
         label_encoders = pickle.load(f)
 
     # Для кодування нових даних:
@@ -46,7 +46,7 @@ def encode(df):
 
     # 3
     # Завантажити mapping
-    with open('./trans/formation_encoder.pkl', 'rb') as f:
+    with open('./transformers/formation_encoder.pkl', 'rb') as f:
         value_to_code = pickle.load(f)
 
     # Кодувати нові дані
@@ -77,7 +77,7 @@ def encode(df):
     import joblib
 
     # Завантажити scaler
-    scaler = joblib.load('./trans/minmax_scaler.pkl')
+    scaler = joblib.load('./transformers/minmax_scaler.pkl')
 
     corr_col = [
         'competition_id', 'season', 'round', 'home_club_id',
@@ -104,6 +104,9 @@ def encode(df):
     return df
 
 if __name__ == '__main__':
+    # Змінити робочу директорію на директорію, де лежить цей файл
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    
     df = pd.read_csv('./test.csv')
     df = encode(df)
-    df.to_csv('./test_res.csv', index=False)
+    print(df)
