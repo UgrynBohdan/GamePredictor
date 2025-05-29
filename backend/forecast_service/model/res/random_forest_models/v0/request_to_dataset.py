@@ -1,15 +1,15 @@
 import os
-import json
-import pandas as pd
-
 # Змінити робочу директорію на директорію, де лежить цей файл
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+import json
+import pandas as pd
 
 def request_to_ds(request):
     '''
         Функція для перетворення запиту користувача на DataFrame для моделі
     '''
-
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     X = [
         #'game_id',
         'competition_id', # За competition_code можна визначити, може задати користувач # є (competition_code)

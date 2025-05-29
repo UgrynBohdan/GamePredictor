@@ -1,8 +1,10 @@
 *.csv
 *.zip
 *.pkl
+*.pyc
 # *.json
 !.gitkeep
+!backend/forecast_service/model/res/random_forest_models/v0/test_data_encoding.csv
 
 structure.excalidraw
 

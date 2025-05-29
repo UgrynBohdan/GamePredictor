@@ -1,12 +1,12 @@
+import os
+# Змінити робочу директорію на директорію, де лежить цей файл
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 import joblib
 import pandas as pd
 import json
-from data_encoding import encode
-from request_to_dataset import request_to_ds
-import os
-
-# Змінити робочу директорію на директорію, де лежить цей файл
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+from .data_encoding import encode
+from .request_to_dataset import request_to_ds
 
 def predict(X):
     '''

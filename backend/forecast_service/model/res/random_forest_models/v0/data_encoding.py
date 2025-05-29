@@ -1,18 +1,16 @@
 # Тестую кодування даних, для подальшого перетворення даних користувача
+import os
+# Змінити робочу директорію на директорію, де лежить цей файл
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 import pandas as pd
 import pickle
-import os
-import sys
-
     
 def encode(df):
     """
         Закодовує стовпці в зрозумілий вигляд для моделі
     """
-    # Змінити робочу директорію на директорію, де лежить цей файл
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
     # 0
     # df = df.drop(['confederation', 'competition_type'], axis=1)
 
@@ -104,9 +102,6 @@ def encode(df):
     return df
 
 if __name__ == '__main__':
-    # Змінити робочу директорію на директорію, де лежить цей файл
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    
-    df = pd.read_csv('./test.csv')
+    df = pd.read_csv('./test_data_encoding.csv')
     df = encode(df)
     print(df)
