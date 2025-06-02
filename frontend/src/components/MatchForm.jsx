@@ -1,31 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { getPrediction, getFields } from '../services/api'; // <== додано
+import { getPrediction, getFields } from '../services/forecast_service'; // <== додано
 
-// "competition_code": "trophee-des-champions",
-// "date": "2025-05-29",
-// "home_club_name": "Stade de Reims",
-// "away_club_name": "FC Metz",
-// "stadium": "Stade Auguste-Delaune",
-// "attendance": 21684,
-// "referee": "Eric Wattellier",
-// "home_club_formation": "4-2-3-1",
-// "away_club_formation": "4-2-3-1"
 function MatchForm() {
   const [matchData, setMatchData] = useState({
     competition_code: '', //
     date: '', //
     home_club_name: '', //
     away_club_name: '', //
-    stadiums: '', //
+    stadium: '', //
     attendance: '', //
-    referees: '', //
+    referee: '', //
     home_club_formation: '', //
     away_club_formation: '', //
   });
 
   const [teams, setTeams] = useState([]); // стан для команд
-  const [stadiums, setStadiums] = useState([]);
-  const [referees, setReferees] = useState([]);
+  const [stadium, setStadium] = useState([]);
+  const [referee, setReferee] = useState([]);
 
   const [prediction, setPrediction] = useState(null); // <== додано
 
@@ -35,8 +26,8 @@ function MatchForm() {
       try {
         const fields = await getFields();
         setTeams(fields.clubs_name || []); // або fields.teams, якщо так називається ключ
-        setReferees(fields.referee || []);
-        setStadiums(fields.stadiums || []);
+        setReferee(fields.referees || []);
+        setStadium(fields.stadiums || []);
 
       } catch (error) {
         console.error('Помилка при завантаженні команд:', error);
@@ -104,10 +95,10 @@ function MatchForm() {
 
       <label>
         Місце проведення (Стадіон):
-        <select name="stadiums" value={matchData.stadiums} onChange={handleChange} required>
+        <select name="stadium" value={matchData.stadium} onChange={handleChange} required>
           <option value="">-- Виберіть --</option>
-          {stadiums.map((stadiums) => (
-            <option key={stadiums} value={stadiums}>{stadiums}</option>
+          {stadium.map((stadium) => (
+            <option key={stadium} value={stadium}>{stadium}</option>
           ))}
         </select>
       </label>
@@ -121,10 +112,10 @@ function MatchForm() {
 
       <label>
         Рефері:
-        <select name="referees" value={matchData.referees} onChange={handleChange} required>
+        <select name="referee" value={matchData.referee} onChange={handleChange} required>
           <option value="">-- Виберіть --</option>
-          {referees.map((referees) => (
-            <option key={referees} value={referees}>{referees}</option>
+          {referee.map((referee) => (
+            <option key={referee} value={referee}>{referee}</option>
           ))}
         </select>
       </label>

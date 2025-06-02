@@ -23,3 +23,6 @@ https://www.kaggle.com/datasets/davidcariboo/player-scores/data
 https://ua.tribuna.com/uk/football/match/
 тож нічого
 https://www.flashscore.ua/
+
+Додай сторінки для входу
+Зроби норм модель

@@ -1,6 +1,6 @@
 import os
 # Змінити робочу директорію на директорію, де лежить цей файл
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+# os.chdir(os.path.dirname(os.path.abspath(__file__)))
 from flask import Flask, request, jsonify
 import json
 from model.res.random_forest_models.v0.run import predict as model_pr
@@ -13,7 +13,8 @@ CORS(app)
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    logger.warning("Спроба отримати запит:")
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    # logger.warning("Спроба отримати запит:")
     try:
         data = request.get_json()
         logger.info(f'Запит отримано!\n{data}')
@@ -23,7 +24,7 @@ def predict():
 
 
 
-    logger.warning('Спроба отримати прогноз:')
+    # logger.warning('Спроба отримати прогноз:')
     try:
         res = model_pr(data)
         logger.info(f'Прогноз отримано!\n{res}')
@@ -33,7 +34,7 @@ def predict():
 
 
 
-    logger.warning('Спроба перевести результати в json:')
+    # logger.warning('Спроба перевести результати в json:')
     try:
         res = res.tolist()[0]
         logger.info('Переведено успішно!')
@@ -47,6 +48,7 @@ def predict():
 
 @app.route('/all_fields', methods=['GET'])
 def all_fields():
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
     source = './model/res/random_forest_models/v0/for_frontend'
 
     try:
