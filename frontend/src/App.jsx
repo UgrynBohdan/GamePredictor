@@ -13,15 +13,15 @@ function App() {
   const [prediction, setPrediction] = useState(null);
   const [user, setUser] = useState(null);
 
-  const handleFormSubmit = async (data) => {
-    try {
-      const result = await getPrediction(data);
-      setPrediction(result);
-    } catch (error) {
-      console.error(error);
-      setPrediction("Помилка під час отримання прогнозу.");
-    }
-  };
+  // const handleFormSubmit = async (data) => {
+  //   try {
+  //     const result = await getPrediction(data);
+  //     setPrediction(result);
+  //   } catch (error) {
+  //     console.error(error);
+  //     setPrediction("Помилка під час отримання прогнозу.");
+  //   }
+  // };
 
   return (
     <Router>
@@ -45,18 +45,20 @@ function App() {
       </div>
       )}
 
-      <div class="logo">
-        <img src={logo} alt="Logo" class="logo-icon" />
-        <span class="logo-text">GamePredictor</span>
+      <div className="logo">
+        <img src={logo} alt="Logo" className="logo-icon" />
+        <span className="logo-text">GamePredictor</span>
       </div>
 
 
       <Routes>
-        <Route path="/" element={<MatchForm onSubmit={handleFormSubmit} />} />
+        {/* <Route path="/" element={<MatchForm onSubmit={handleFormSubmit} />} /> */}
+        <Route path="/" element={<MatchForm />} />
         <Route path="/register" element={<Sing_up setUser={setUser} />} />
         <Route path='/login' element={<Log_in setUser={setUser} />} />
       </Routes>
-      {prediction && <div>Прогноз: {JSON.stringify(prediction)}</div>}
+      
+      
 
     </Router>
   )

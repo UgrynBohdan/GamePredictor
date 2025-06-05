@@ -136,9 +136,33 @@ function MatchForm() {
       <button type="submit">Отримати прогноз</button>
 
       {/* Відображення прогнозу */}
-      {prediction && (
-        <div style={{ marginTop: '1rem' }}>
-          <strong>Прогноз:</strong> {prediction.error || JSON.stringify(prediction)}
+      {prediction && Array.isArray(prediction) && prediction.length === 2 && (() => {
+        const [home, away] = prediction;
+        // Простий softmax для ймовірностей
+        const expHome = Math.exp(home);
+        const expAway = Math.exp(away);
+        const expDraw = Math.exp(-Math.abs(home - away));
+        const sum = expHome + expAway + expDraw;
+        const winProb = (expHome / sum * 100).toFixed(1);
+        const drawProb = (expDraw / sum * 100).toFixed(1);
+        const loseProb = (expAway / sum * 100).toFixed(1);
+
+        return (
+          <div style={{ marginTop: '1rem' }}>
+            <strong>Прогнозовані голи:</strong><br />
+            Домашня команда: {home.toFixed(2)}<br />
+            Гостьова команда: {away.toFixed(2)}<br />
+            <br />
+            <strong>Ймовірність:</strong><br />
+            Перемога домашньої: {winProb}%<br />
+            Нічия: {drawProb}%<br />
+            Поразка домашньої: {loseProb}%<br />
+          </div>
+        );
+      })()}
+      {prediction && prediction.error && (
+        <div style={{ marginTop: '1rem', color: 'red' }}>
+          <strong>Помилка:</strong> {prediction.error}
         </div>
       )}
     </form>
