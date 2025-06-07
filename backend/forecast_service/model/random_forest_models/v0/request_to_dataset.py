@@ -58,9 +58,9 @@ def request_to_ds(request):
     df['competition_id'] = [0]
 
     # Завантаження потрібних сирих даних
-    games = pd.read_csv('../../../data/raw/games.csv')
-    clubs = pd.read_csv('../../../data/raw/clubs.csv')
-    competitions = pd.read_csv('../../../data/raw/competitions.csv')
+    games = pd.read_csv('../../data/raw/games.csv')
+    clubs = pd.read_csv('../../data/raw/clubs.csv')
+    competitions = pd.read_csv('../../data/raw/competitions.csv')
     
     # Заповнення df
     # competition_id

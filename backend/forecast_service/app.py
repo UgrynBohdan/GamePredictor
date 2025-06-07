@@ -1,9 +1,7 @@
 import os
-# Змінити робочу директорію на директорію, де лежить цей файл
-# os.chdir(os.path.dirname(os.path.abspath(__file__)))
 from flask import Flask, request, jsonify
 import json
-from model.res.random_forest_models.v0.run import predict as model_pr
+from model.random_forest_models.v0.run import predict as model_pr
 from loguru import logger
 # logger.add("app.log", rotation="10 MB")
 from flask_cors import CORS
@@ -42,14 +40,14 @@ def predict():
         logger.error(f"Помилка при конвертації результатів: {e}")
         return jsonify({"error": "Result conversion failed"}), 500
 
-    logger.warning('Повернення результатів')
+    # logger.warning('Повернення результатів')
     return jsonify(res)
 
 
 @app.route('/all_fields', methods=['GET'])
 def all_fields():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    source = './model/res/random_forest_models/v0/for_frontend'
+    source = './model/random_forest_models/v0/for_frontend'
 
     try:
         with open(source + '/clubs_name.json', 'r', encoding='utf-8') as f1:

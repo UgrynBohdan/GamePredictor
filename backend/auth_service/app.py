@@ -10,7 +10,7 @@ CORS(app)
 
 # DB config
 app.config['MYSQL_HOST'] = MYSQL_HOST
-app.config['MYSQL_PORT'] = 3307  # вказуєш явно порт!
+app.config['MYSQL_PORT'] = 3307
 app.config['MYSQL_USER'] = MYSQL_USER
 app.config['MYSQL_PASSWORD'] = MYSQL_PASSWORD
 app.config['MYSQL_DB'] = MYSQL_DB

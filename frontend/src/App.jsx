@@ -13,16 +13,6 @@ function App() {
   const [prediction, setPrediction] = useState(null);
   const [user, setUser] = useState(null);
 
-  // const handleFormSubmit = async (data) => {
-  //   try {
-  //     const result = await getPrediction(data);
-  //     setPrediction(result);
-  //   } catch (error) {
-  //     console.error(error);
-  //     setPrediction("Помилка під час отримання прогнозу.");
-  //   }
-  // };
-
   return (
     <Router>
       {user && (
@@ -57,8 +47,6 @@ function App() {
         <Route path="/register" element={<Sing_up setUser={setUser} />} />
         <Route path='/login' element={<Log_in setUser={setUser} />} />
       </Routes>
-      
-      
 
     </Router>
   )
