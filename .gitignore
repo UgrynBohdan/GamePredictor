@@ -2,6 +2,8 @@
 *.zip
 *.pkl
 *.pyc
+*.joblib
+*.pt
 # *.json
 !.gitkeep
 !backend/forecast_service/model/res/random_forest_models/v0/test_data_encoding.csv
