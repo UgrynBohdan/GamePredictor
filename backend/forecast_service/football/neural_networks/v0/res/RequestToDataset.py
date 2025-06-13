@@ -24,7 +24,7 @@ class RequestToDataset:
             logger.info(message)
             return res
         except Exception as e:
-            logger.error(f'Помилка! {message}\n{e}')
+            logger.error(f'Помилка! {message} - {e}')
             raise
 
 

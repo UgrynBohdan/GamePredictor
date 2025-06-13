@@ -1,77 +1,95 @@
-import os
 from flask import Flask, request, jsonify
-import json
-from model.random_forest_models.v0.run import predict as model_pr
-from loguru import logger
-# logger.add("app.log", rotation="10 MB")
 from flask_cors import CORS
+import os
+import json
+from loguru import logger
 
-app = Flask(__name__)
-CORS(app)
-
-@app.route('/predict', methods=['POST'])
-def predict():
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # logger.warning("Спроба отримати запит:")
-    try:
-        data = request.get_json()
-        logger.info(f'Запит отримано!\n{data}')
-    except Exception as e:
-        logger.error(f"Помилка при отриманні JSON запиту: {e}")
-        return jsonify({"error": "Invalid JSON"}), 400
+from football.neural_networks.v0.res import Predict
 
 
-
-    # logger.warning('Спроба отримати прогноз:')
-    try:
-        res = model_pr(data)
-        logger.info(f'Прогноз отримано!\n{res}')
-    except Exception as e:
-        logger.error(f"Помилка при отриманні прогнозу: {e}")
-        return jsonify({"error": "Prediction failed"}), 500
-
+class ForecastService:
+    def __init__(self):
+        self.app = Flask(__name__)
+        CORS(self.app)
+        self.predict_model = Predict()
+        self.setup_routes()
+        self._loading_json()
 
 
-    # logger.warning('Спроба перевести результати в json:')
-    try:
-        res = res.tolist()[0]
-        logger.info('Переведено успішно!')
-    except Exception as e:
-        logger.error(f"Помилка при конвертації результатів: {e}")
-        return jsonify({"error": "Result conversion failed"}), 500
+    def _loading_json(self):
+        # Змінити робочу директорію на директорію, де лежить цей файл
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
+        source = './football/neural_networks/v0/res/for_frontend'
+        try:
+            # Завантаження JSON-файлів
+            with open(source + '/clubs_name.json', 'r', encoding='utf-8') as f1:
+                clubs_name = json.load(f1)
+            with open(source + '/referee.json', 'r', encoding='utf-8') as f2:
+                referees = json.load(f2)
+            with open(source + '/stadiums.json', 'r', encoding='utf-8') as f3:
+                stadiums = json.load(f3)
 
-    # logger.warning('Повернення результатів')
-    return jsonify(res)
+            self.res = {
+                "clubs_name": clubs_name,
+                "referees": referees,
+                "stadiums": stadiums
+            }
+            logger.info('Успішно завантажено JSON-файли.')
+        except Exception as e:
+            logger.critical(f'Критична помилка при завантаженні JSON-файлів: {e}')
+            self.res = {"error": "Failed to load initial JSON files"}
 
 
-@app.route('/all_fields', methods=['GET'])
-def all_fields():
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    source = './model/random_forest_models/v0/for_frontend'
+    def _execute_and_log_error(self, func, success_message: str, *args, **kwargs):
+        """
+        Допоміжна функція для виконання іншої функції, логування її успіху/невдачі
+        та повторного викликання винятків.
+        """
+        try:
+            res = func(*args, **kwargs)
+            logger.info(success_message)
+            return res
+        except Exception as e:
+            logger.error(f'Помилка при виконанні операції: "{success_message}": {e}')
+            raise
 
-    try:
-        with open(source + '/clubs_name.json', 'r', encoding='utf-8') as f1:
-            clubs_name = json.load(f1)
-        with open(source + '/referee.json', 'r', encoding='utf-8') as f2:
-            referees = json.load(f2)
-        with open(source + '/stadiums.json', 'r', encoding='utf-8') as f3:
-            stadiums = json.load(f3)
 
-        res = {
-            "clubs_name": clubs_name,
-            "referees": referees,
-            "stadiums": stadiums
-        }
+    def setup_routes(self):
+        @self.app.route('/predict', methods=['POST'])
+        def predict_route():
+            try:
+                data = self._execute_and_log_error(
+                    request.get_json,
+                    "Запит отримано та JSON успішно розпарсено."
+                )
 
-        return jsonify(res)
-    
-    except Exception as e:
-        logger.error(f'Помилка при завантаженні JSON: {e}')
-        return jsonify({"error": "Failed to load JSON files"}), 500
+                final_prediction = self._execute_and_log_error(
+                    self.predict_model.predict,
+                    "Передбачення отримано",
+                    data
+                ).tolist()[0]
+                
+                return jsonify({'predict': final_prediction})
+
+            except Exception as e:
+                logger.error(f"Помилка при обробці запиту /predict: {e}")
+                return jsonify({'message': f'Error! Сталася внутрішня помилка сервера!!!'}), 500
+
+
+        @self.app.route('/all_fields', methods=['GET'])
+        def all_fields():
+            # Перевіряємо, чи були дані успішно завантажені
+            if "error" in self.res:
+                logger.warning(f"Запит до /all_fields, але JSON-файли не були завантажені: {self.res['error']}")
+                return jsonify({'message': self.res['error']}), 500
+            return jsonify(self.res)
+
+
+    def run(self, port=5001, debug=True):
+        self.app.run(port=port, debug=debug)
 
 
 
 if __name__ == '__main__':
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    logger.info("Запуск!")
-    app.run(port=5001, debug=True)
+    server = ForecastService()
+    server.run()

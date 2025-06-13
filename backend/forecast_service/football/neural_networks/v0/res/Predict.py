@@ -1,11 +1,13 @@
 import torch
 import json
 import joblib
+import os
 from loguru import logger
 
 from .models.model import MyModel
 from .RequestToDataset import RequestToDataset
 from .DataEncoding import DataEncoding
+
 
 class Predict:
     """
@@ -15,6 +17,7 @@ class Predict:
     def __init__(self):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
         self.model_state_dict = self.predict_log(torch.load, 'Завантаження даних моделі.', './models/model_state_dict_epoch_11.pt', weights_only=False)
         
         try:
@@ -43,7 +46,7 @@ class Predict:
             logger.info(message)
             return res
         except Exception as e:
-            logger.error(f'Помилка! {message}\n{e}')
+            logger.error(f'Помилка! {message} - {e}')
             raise
 
 
