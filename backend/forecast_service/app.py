@@ -19,20 +19,23 @@ class ForecastService:
     def _loading_json(self):
         # Змінити робочу директорію на директорію, де лежить цей файл
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
-        source = './football/neural_networks/v0/res/for_frontend'
+        source = './football/data/for_frontend'
         try:
             # Завантаження JSON-файлів
             with open(source + '/clubs_name.json', 'r', encoding='utf-8') as f1:
                 clubs_name = json.load(f1)
-            with open(source + '/referee.json', 'r', encoding='utf-8') as f2:
+            with open(source + '/referees.json', 'r', encoding='utf-8') as f2:
                 referees = json.load(f2)
             with open(source + '/stadiums.json', 'r', encoding='utf-8') as f3:
                 stadiums = json.load(f3)
+            with open(source + '/competitions_code.json', 'r', encoding='utf-8') as f3:
+                competitions_code = json.load(f3)
 
             self.res = {
                 "clubs_name": clubs_name,
                 "referees": referees,
-                "stadiums": stadiums
+                "stadiums": stadiums,
+                "competitions_code": competitions_code
             }
             logger.info('Успішно завантажено JSON-файли.')
         except Exception as e:
