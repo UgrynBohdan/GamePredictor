@@ -4,7 +4,7 @@ import os
 import json
 from loguru import logger
 
-from football.neural_networks.v0.res import Predict
+from football.neural_networks.v0 import Predict
 
 
 class ForecastService:

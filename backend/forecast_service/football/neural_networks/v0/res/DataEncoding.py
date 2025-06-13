@@ -36,7 +36,7 @@ class DataEncoding:
 
         df = self.encode_log(self.encode_categorical_features, "Кодування категоріальних ознак.", df)
 
-        cols_for_norm = df.drop('is_major_national_league', axis=1).columns
+        cols_for_norm = df.columns
         df = self.encode_log(self.normalize, "Нормалізація.", df, cols_for_norm)
 
         df = self.encode_log(self.encode_is_major_national_league, "Кодування важливості ліги.", df)

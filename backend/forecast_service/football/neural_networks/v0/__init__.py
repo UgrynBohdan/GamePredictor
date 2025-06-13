@@ -1,0 +1,1 @@
+from .res.Predict import Predict

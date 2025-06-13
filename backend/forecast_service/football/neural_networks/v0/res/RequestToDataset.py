@@ -11,7 +11,7 @@ class RequestToDataset:
     def __init__(self):
         self.competitions = pd.read_csv('../../../data/raw/competitions.csv')
         self.games = pd.read_csv('../../../data/raw/games.csv')
-        self.clubs = pd.read_csv('./transformers/clubs_mod.csv')
+        self.clubs = pd.read_csv('../../../data/processed/clubs_mod.csv')
 
         self.X = joblib.load('./transformers/X_columns.joblib')
 
@@ -201,6 +201,7 @@ if __name__ == "__main__":
     
     requestToDataset = RequestToDataset()
     res = requestToDataset.request_to_ds(example)
+    res.to_csv('./example/formulated_request.csv', index=False)
     print('\n\n\n\n')
     print(res)
     print(res.columns[res.isnull().all()])
