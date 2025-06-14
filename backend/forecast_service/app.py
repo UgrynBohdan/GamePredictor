@@ -1,19 +1,49 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flask_caching import Cache
+import hashlib
 import os
 import json
 from loguru import logger
 
 from football.neural_networks.v0 import Predict
-
+# FIXME Проблема з кешуванням POST-запитів
+'''
+Рішення: Для коректного кешування POST-запитів вам потрібно надати власну функцію make_cache_key для декоратора cache.cached. Ця функція повинна брати до уваги вміст JSON-тіла запиту.
+'''
+# FIXME Завжди будуйте абсолютні шляхи до файлів, використовуючи os.path.join замість os.chdir(os.path.dirname(os.path.abspath(__file__)))
+# FIXME Конфігурація Loguru
 
 class ForecastService:
     def __init__(self):
         self.app = Flask(__name__)
         CORS(self.app)
-        self.predict_model = Predict()
-        self.setup_routes()
-        self._loading_json()
+
+        try:
+            self.predict_model = Predict()
+            self._loading_json()
+            self._redis_connect()
+        except Exception as e:
+            logger.critical(f"Критична помилка при ініціалізації ForecastService: {e}")
+            raise
+        
+        self._setup_routes()
+
+
+    def _redis_connect(self):
+        try:
+            # Налаштування кешу
+            self.app.config['CACHE_TYPE'] = 'redis'
+            self.app.config['CACHE_REDIS_HOST'] = 'localhost'
+            self.app.config['CACHE_REDIS_PORT'] = 6379
+            self.app.config['CACHE_REDIS_DB'] = 0
+            self.app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0' # Для Flask-Caching 2.x
+            self.app.config['CACHE_DEFAULT_TIMEOUT'] = 60 # Стандартний TTL в секундах
+
+            self.cache = Cache(self.app)
+        except Exception as e:
+            logger.error(f"Не вдалося підключитися до Redis: {e}")
+            raise
 
 
     def _loading_json(self):
@@ -56,9 +86,35 @@ class ForecastService:
             logger.error(f'Помилка при виконанні операції: "{success_message}": {e}')
             raise
 
+    
+    def _make_json_cache_key(*args, **kwargs):
+        """
+        Створює унікальний кеш-ключ для POST-запитів на основі JSON-тіла.
+        Ця функція є статичним методом або окремою функцією,
+        оскільки декоратор cache.cached вимагає, щоб вона не була методом екземпляра.
+        """
+        # request - це глобальний об'єкт Flask, доступний у контексті запиту
+        json_data = request.get_json(silent=True) # silent=True щоб не викликати помилку, якщо JSON недійсний
+        
+        if json_data is None:
+            # Якщо JSON-тіло відсутнє або недійсне, використовуємо просту комбінацію URL + query string
+            logger.warning("JSON-тіло запиту відсутнє або недійсне для кешування.")
+            return request.path + request.query_string.decode('utf-8')
 
-    def setup_routes(self):
+        try:
+            sorted_json_str = json.dumps(json_data, sort_keys=True, ensure_ascii=False)
+            return hashlib.md5(sorted_json_str.encode('utf-8')).hexdigest()
+        except TypeError as e:
+            logger.warning(f"Не вдалося серіалізувати JSON-дані для кешування (TypeError): {e}. Використовую URL.")
+            return request.path + request.query_string.decode('utf-8')
+        except Exception as e:
+            logger.error(f"Неочікувана помилка при генерації кеш-ключа з JSON-тіла: {e}. Використовую URL.")
+            return request.path + request.query_string.decode('utf-8')
+
+
+    def _setup_routes(self):
         @self.app.route('/predict', methods=['POST'])
+        @self.cache.cached(timeout=30, make_cache_key=self._make_json_cache_key) # Оновлений декоратор кешування: make_cache_key використовує JSON-тіло
         def predict_route():
             try:
                 data = self._execute_and_log_error(
