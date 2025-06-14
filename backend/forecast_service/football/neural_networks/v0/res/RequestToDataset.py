@@ -2,6 +2,9 @@ import os
 # Змінити робочу директорію на директорію, де лежить цей файл
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 import json
 import pandas as pd
 import joblib
