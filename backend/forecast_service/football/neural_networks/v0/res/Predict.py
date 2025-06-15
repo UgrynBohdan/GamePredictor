@@ -16,9 +16,13 @@ class Predict:
     """
     def __init__(self):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        logger.info(f'Доступний пристрій: {self.device}')
+        self._file_path = os.path.dirname(os.path.abspath(__file__))
 
-        os.chdir(os.path.dirname(os.path.abspath(__file__)))
-        self.model_state_dict = self.predict_log(torch.load, 'Завантаження даних моделі.', './models/model_state_dict_epoch_11.pt', weights_only=False)
+        if self.device == 'cpu':
+            self.model_state_dict = self.predict_log(torch.load, 'Завантаження даних моделі.', self._file_path + '/models/model_state_dict_epoch_11.pt', weights_only=False, map_location=torch.device('cpu'))
+        else:
+            self.model_state_dict = self.predict_log(torch.load, 'Завантаження даних моделі.', self._file_path + '/models/model_state_dict_epoch_11.pt', weights_only=False)
         
         try:
             self.model = MyModel(len(self.model_state_dict['X_columns']), len(self.model_state_dict['y_columns'])).to(self.device)
@@ -37,7 +41,7 @@ class Predict:
             logger.error(f'Помилка створення трансформаторів!\n{e}')
             raise
 
-        self.scaler_y = self.predict_log(joblib.load, 'Завантаження scaler_y', './transformers/scaler_y.joblib')
+        self.scaler_y = self.predict_log(joblib.load, 'Завантаження scaler_y', self._file_path + '/transformers/scaler_y.joblib')
 
 
     def predict_log(self, f, message: str, *args, **kwargs):
@@ -77,5 +81,5 @@ if __name__ == '__main__':
     res = predict.predict(example)
     print('\n\n\n')
     print(res)
-    print(f'Приблизні результати команди №1 {example['home_club_name']}: {res[0][0]}')
-    print(f'Приблизні результати команди №2 {example['away_club_name']}: {res[0][1]}')
+    print(f"Приблизні результати команди №1 {example['home_club_name']}: {res[0][0]}")
+    print(f"Приблизні результати команди №2 {example['away_club_name']}: {res[0][1]}")

@@ -1,0 +1,9 @@
+*.pyc
+*.ipynb
+**/notebooks/
+**/raw/
+!**clubs_mod.csv
+!**games.csv
+!**competitions.csv
+**/example/
+*.gitkeep

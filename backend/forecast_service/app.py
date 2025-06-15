@@ -5,23 +5,21 @@ import hashlib
 import os
 import json
 from loguru import logger
+import logger_config
 
 from football.neural_networks.v0 import Predict
-# FIXME Проблема з кешуванням POST-запитів
-'''
-Рішення: Для коректного кешування POST-запитів вам потрібно надати власну функцію make_cache_key для декоратора cache.cached. Ця функція повинна брати до уваги вміст JSON-тіла запиту.
-'''
+
 # FIXME Завжди будуйте абсолютні шляхи до файлів, використовуючи os.path.join замість os.chdir(os.path.dirname(os.path.abspath(__file__)))
-# FIXME Конфігурація Loguru
 
 class ForecastService:
     def __init__(self):
         self.app = Flask(__name__)
         CORS(self.app)
 
+        self._loading_json()
+        
         try:
             self.predict_model = Predict()
-            self._loading_json()
             self._redis_connect()
         except Exception as e:
             logger.critical(f"Критична помилка при ініціалізації ForecastService: {e}")
@@ -42,14 +40,14 @@ class ForecastService:
 
             self.cache = Cache(self.app)
         except Exception as e:
-            logger.error(f"Не вдалося підключитися до Redis: {e}")
+            logger.critical(f"Критична помилка при підключенні до Redis: {e}")
             raise
 
 
     def _loading_json(self):
         # Змінити робочу директорію на директорію, де лежить цей файл
-        os.chdir(os.path.dirname(os.path.abspath(__file__)))
-        source = './football/data/for_frontend'
+        # os.chdir(os.path.dirname(os.path.abspath(__file__)))
+        source = os.path.dirname(os.path.abspath(__file__)) + '/football/data/for_frontend'
         try:
             # Завантаження JSON-файлів
             with open(source + '/clubs_name.json', 'r', encoding='utf-8') as f1:
@@ -69,9 +67,9 @@ class ForecastService:
             }
             logger.info('Успішно завантажено JSON-файли.')
         except Exception as e:
-            logger.critical(f'Критична помилка при завантаженні JSON-файлів: {e}')
+            logger.error(f'Критична помилка при завантаженні JSON-файлів: {e}')
             self.res = {"error": "Failed to load initial JSON files"}
-
+            
 
     def _execute_and_log_error(self, func, success_message: str, *args, **kwargs):
         """
@@ -145,10 +143,10 @@ class ForecastService:
 
 
     def run(self, port=5001, debug=True):
-        self.app.run(port=port, debug=debug)
+        self.app.run(host='0.0.0.0', port=port, debug=debug)
 
 
 
 if __name__ == '__main__':
     server = ForecastService()
-    server.run()
+    server.run(debug=False)

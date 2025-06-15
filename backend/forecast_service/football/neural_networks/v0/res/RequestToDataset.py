@@ -9,16 +9,26 @@ import json
 import pandas as pd
 import joblib
 from loguru import logger
+from pathlib import Path
 
 class RequestToDataset:
     def __init__(self):
-        self.competitions = pd.read_csv('../../../data/raw/competitions.csv')
-        self.games = pd.read_csv('../../../data/raw/games.csv')
-        self.clubs = pd.read_csv('../../../data/processed/clubs_mod.csv')
+        project_root = Path(__file__).resolve().parents[3] # Переконайтеся, що [4] відповідає вашій структурі
 
-        self.X = joblib.load('./transformers/X_columns.joblib')
+        logger.info(f"Коренева директорія проєкту: {project_root}")
 
-        self.formation_code_map = joblib.load('./transformers/formation_code_map.joblib')
+        try:
+            self.competitions = pd.read_csv(project_root / 'data' / 'raw' / 'competitions.csv')
+            self.games = pd.read_csv(project_root / 'data' / 'raw' / 'games.csv')
+            self.clubs = pd.read_csv(project_root / 'data' / 'processed' / 'clubs_mod.csv')
+
+            self.X = joblib.load('./transformers/X_columns.joblib')
+            self.formation_code_map = joblib.load('./transformers/formation_code_map.joblib')
+
+            logger.info("Дані DF та моделі завантажено успішно.")
+        except Exception as e:
+            logger.critical(f"Критична помилка завантаження даних DF для моделі: {e}")
+            raise
 
 
     def request_to_ds_log(self, f, message: str, *args, **kwargs):
