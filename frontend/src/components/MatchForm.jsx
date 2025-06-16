@@ -17,6 +17,7 @@ function MatchForm() {
   const [teams, setTeams] = useState([]); // стан для команд
   const [stadium, setStadium] = useState([]);
   const [referee, setReferee] = useState([]);
+  const [competition_codes, setCompetitionCodes] = useState([]);
 
   const [prediction, setPrediction] = useState(null); // <== додано
 
@@ -25,13 +26,23 @@ function MatchForm() {
     const fetchTeams = async () => {
       try {
         const fields = await getFields();
+        console.log(fields);
         setTeams(fields.clubs_name || []); // або fields.teams, якщо так називається ключ
         setReferee(fields.referees || []);
         setStadium(fields.stadiums || []);
+        setCompetitionCodes(fields.competitions_code || []);
 
       } catch (error) {
         console.error('Помилка при завантаженні команд:', error);
         setTeams([]);
+        setReferee([]);
+        setStadium([
+          "italy-cup",
+          "johan-cruijff-schaal",
+          "kypello-elladas",
+          "supertaca-candido-de-oliveira"
+        ]);
+        setCompetitionCodes([]);
       }
     };
     fetchTeams();
@@ -48,7 +59,8 @@ function MatchForm() {
 
     try {
       const result = await getPrediction(matchData); // <== запит до API
-      setPrediction(result); // <== збереження результату
+      console.log(result.predict)
+      setPrediction(result.predict); // <== збереження результату
     } catch (error) {
       console.error(error);
       setPrediction({ error: 'Помилка при отриманні прогнозу' });
@@ -61,7 +73,12 @@ function MatchForm() {
 
       <label>
         Вид змагання:
-        <input type="text" name="competition_code" value={matchData.competition_code} onChange={handleChange} />
+        <select name="competition_code" value={matchData.competition_code} onChange={handleChange} required>
+          <option value="">-- Виберіть --</option>
+          {competition_codes.map((code) => (
+            <option key={code} value={code}>{code}</option>
+          ))}
+        </select>
       </label>
       <br />
 

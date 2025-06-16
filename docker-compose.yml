@@ -1,0 +1,62 @@
+services:
+  auth_service:
+    build: ./backend/auth_service
+    container_name: auth_service
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./backend/auth_service:/app
+    depends_on:
+      mysql:
+        condition: service_healthy
+  forecast_service:
+    build: ./backend/forecast_service
+    container_name: forecast_service
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./backend/forecast_service:/app
+    depends_on:
+      redis:
+        condition: service_healthy
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - forecast_service
+      - auth_service
+  redis:
+    image: redis:7.2-alpine
+    container_name: redis_db    
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: 'my-secret-pw' # Пароль для root користувача
+      MYSQL_DATABASE: 'AI_Sports' # База даних, яка буде створена при старті
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'my-secret-pw'
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$$MYSQL_USER -p$$MYSQL_PASSWORD || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+                          
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/auth_service/db.sql:/docker-entrypoint-initdb.d/init.sql:ro # <--- ДОДАЙТЕ ЦЕЙ РЯДОК
+
+volumes:
+  db_data:

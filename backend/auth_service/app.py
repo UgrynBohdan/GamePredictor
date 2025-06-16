@@ -19,7 +19,7 @@ class AuthService:
         try:
             # DB config
             self.app.config['MYSQL_HOST'] = MYSQL_HOST
-            self.app.config['MYSQL_PORT'] = 3307
+            self.app.config['MYSQL_PORT'] = MYSQL_PORT
             self.app.config['MYSQL_USER'] = MYSQL_USER
             self.app.config['MYSQL_PASSWORD'] = MYSQL_PASSWORD
             self.app.config['MYSQL_DB'] = MYSQL_DB

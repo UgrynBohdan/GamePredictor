@@ -5,6 +5,7 @@ import hashlib
 import os
 import json
 from loguru import logger
+from config import *
 import logger_config
 
 from football.neural_networks.v0 import Predict
@@ -31,12 +32,12 @@ class ForecastService:
     def _redis_connect(self):
         try:
             # Налаштування кешу
-            self.app.config['CACHE_TYPE'] = 'redis'
-            self.app.config['CACHE_REDIS_HOST'] = 'localhost'
-            self.app.config['CACHE_REDIS_PORT'] = 6379
-            self.app.config['CACHE_REDIS_DB'] = 0
-            self.app.config['CACHE_REDIS_URL'] = 'redis://localhost:6379/0' # Для Flask-Caching 2.x
-            self.app.config['CACHE_DEFAULT_TIMEOUT'] = 60 # Стандартний TTL в секундах
+            self.app.config['CACHE_TYPE'] = CACHE_TYPE
+            self.app.config['CACHE_REDIS_HOST'] = CACHE_REDIS_HOST
+            self.app.config['CACHE_REDIS_PORT'] = CACHE_REDIS_PORT
+            self.app.config['CACHE_REDIS_DB'] = CACHE_REDIS_DB
+            self.app.config['CACHE_REDIS_URL'] = CACHE_REDIS_URL
+            self.app.config['CACHE_DEFAULT_TIMEOUT'] = CACHE_DEFAULT_TIMEOUT # Стандартний TTL в секундах
 
             self.cache = Cache(self.app)
         except Exception as e:

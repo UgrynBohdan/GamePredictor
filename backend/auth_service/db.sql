@@ -1,4 +1,4 @@
-CREATE DATABASE AI_Sports;
+-- CREATE DATABASE AI_Sports;
 USE AI_Sports;
 
 CREATE TABLE users (

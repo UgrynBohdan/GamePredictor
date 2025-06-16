@@ -134,7 +134,7 @@ class RequestToDataset:
     
 
     def add_attendance(self, df, request):
-        df['attendance'] = request['attendance']
+        df['attendance'] = int(request['attendance'])
         return df
     
 
