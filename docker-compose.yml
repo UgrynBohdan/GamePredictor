@@ -1,7 +1,8 @@
 services:
   auth_service:
-    build: ./backend/auth_service
+    # build: ./backend/auth_service # Для розробки
     container_name: auth_service
+    image: ugrynbogdan/game-predictor-auth-service:0.5.0
     ports:
       - "5002:5002"
     volumes:
@@ -10,8 +11,9 @@ services:
       mysql:
         condition: service_healthy
   forecast_service:
-    build: ./backend/forecast_service
+    # build: ./backend/forecast_service # Для розробки
     container_name: forecast_service
+    image: ugrynbogdan/game-predictor-forecast-service:0.5.0
     ports:
       - "5001:5001"
     volumes:
@@ -20,7 +22,8 @@ services:
       redis:
         condition: service_healthy
   frontend:
-    build: ./frontend
+    # build: ./frontend # Для розробки
+    image: ugrynbogdan/game-predictor-frontend:0.5.0
     ports:
       - "80:80"
     depends_on:
