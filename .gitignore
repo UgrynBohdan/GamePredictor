@@ -7,7 +7,6 @@
 *.json
 !example.json
 !.gitkeep
-images/
 
 plan.txt
 structure.excalidraw
